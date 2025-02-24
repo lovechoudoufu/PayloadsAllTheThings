@@ -1,21 +1,23 @@
-# Dom Clobbering
+# DOM Clobbering
 
 > DOM Clobbering is a technique where global variables can be overwritten or "clobbered" by naming HTML elements with certain IDs or names. This can cause unexpected behavior in scripts and potentially lead to security vulnerabilities.
 
 ## Summary
 
-* [Lab](#lab)
-* [Exploit](#exploit)
-* [References](#references)
+- [Tools](#tools)
+- [Methodology](#methodology)
+- [Lab](#lab)
+- [References](#references)
 
 
-## Lab
+## Tools
 
-* [Lab: Exploiting DOM clobbering to enable XSS](https://portswigger.net/web-security/dom-based/dom-clobbering/lab-dom-xss-exploiting-dom-clobbering)
-* [Lab: Clobbering DOM attributes to bypass HTML filters](https://portswigger.net/web-security/dom-based/dom-clobbering/lab-dom-clobbering-attributes-to-bypass-html-filters)
-* [Lab: DOM clobbering test case protected by CSP](https://portswigger-labs.net/dom-invader/testcases/augmented-dom-script-dom-clobbering-csp/)
+- [SoheilKhodayari/DOMClobbering](https://domclob.xyz/domc_markups/list) - Comprehensive List of DOM Clobbering Payloads for Mobile and Desktop Web Browsers
+- [yeswehack/Dom-Explorer](https://github.com/yeswehack/Dom-Explorer) - A web-based tool designed for testing various HTML parsers and sanitizers.
+- [yeswehack/Dom-Explorer Live](https://yeswehack.github.io/Dom-Explorer/dom-explorer#eyJpbnB1dCI6IiIsInBpcGVsaW5lcyI6W3siaWQiOiJ0ZGpvZjYwNSIsIm5hbWUiOiJEb20gVHJlZSIsInBpcGVzIjpbeyJuYW1lIjoiRG9tUGFyc2VyIiwiaWQiOiJhYjU1anN2YyIsImhpZGUiOmZhbHNlLCJza2lwIjpmYWxzZSwib3B0cyI6eyJ0eXBlIjoidGV4dC9odG1sIiwic2VsZWN0b3IiOiJib2R5Iiwib3V0cHV0IjoiaW5uZXJIVE1MIiwiYWRkRG9jdHlwZSI6dHJ1ZX19XX1dfQ==) - Reveal how browsers parse HTML and find mutated XSS vulnerabilities
 
-## Exploit
+
+## Methodology
 
 Exploitation requires any kind of `HTML injection` in the page.
 
@@ -123,10 +125,17 @@ Exploitation requires any kind of `HTML injection` in the page.
 * DomPurify allows the protocol `cid:`, which doesn't encode double quote (`"`): `<a id=defaultAvatar><a id=defaultAvatar name=avatar href="cid:&quot;onerror=alert(1)//">`
 
 
+## Lab
+
+- [PortSwigger - Exploiting DOM clobbering to enable XSS](https://portswigger.net/web-security/dom-based/dom-clobbering/lab-dom-xss-exploiting-dom-clobbering)
+- [PortSwigger - Clobbering DOM attributes to bypass HTML filters](https://portswigger.net/web-security/dom-based/dom-clobbering/lab-dom-clobbering-attributes-to-bypass-html-filters)
+- [PortSwigger - DOM clobbering test case protected by CSP](https://portswigger-labs.net/dom-invader/testcases/augmented-dom-script-dom-clobbering-csp/)
+
+
 ## References
 
-* [Dom Clobbering - PortSwigger](https://portswigger.net/web-security/dom-based/dom-clobbering)
-* [Dom Clobbering - HackTricks](https://book.hacktricks.xyz/pentesting-web/xss-cross-site-scripting/dom-clobbering)
-* [DOM Clobbering strikes back - @garethheyes - 06 February 2020](https://portswigger.net/research/dom-clobbering-strikes-back)
-* [Hijacking service workers via DOM Clobbering - @garethheyes - 29 November 2022](https://portswigger.net/research/hijacking-service-workers-via-dom-clobbering)
-* [Bypassing CSP via DOM clobbering - @garethheyes - 05 June 2023](https://portswigger.net/research/bypassing-csp-via-dom-clobbering)
+- [Bypassing CSP via DOM clobbering - Gareth Heyes - 05 June 2023](https://portswigger.net/research/bypassing-csp-via-dom-clobbering)
+- [DOM Clobbering - HackTricks - January 27, 2023](https://book.hacktricks.xyz/pentesting-web/xss-cross-site-scripting/dom-clobbering)
+- [DOM Clobbering - PortSwigger - September 25, 2020](https://portswigger.net/web-security/dom-based/dom-clobbering)
+- [DOM Clobbering strikes back - Gareth Heyes - 06 February 2020](https://portswigger.net/research/dom-clobbering-strikes-back)
+- [Hijacking service workers via DOM Clobbering - Gareth Heyes - 29 November 2022](https://portswigger.net/research/hijacking-service-workers-via-dom-clobbering)
